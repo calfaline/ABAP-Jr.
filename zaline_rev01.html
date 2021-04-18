@@ -1,0 +1,94 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<html>
+<head>
+<title>ZALINE_REV01</title>
+</head>
+<body bgcolor="#FFFFE0">
+<font size="3" face = "Arial" color="#000000"><b>Code listing for: ZALINE_REV01</b></font>
+<br>
+<font size="3" face = "Arial" color="#000000"><b>Description:  Program ZALINE_REV01</b></font>
+<hr>
+<pre width="100">
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*& Report  ZALINE_REV01</font>
+<font color ="#0000FF">*&</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+<font color ="#0000FF">*&#	Criar Report “Z &lt;nome&gt;_REV01” que exibirá todos os números seqüenciais não repetindo-os.</font>
+<font color ="#0000FF">*&</font>
+<font color ="#0000FF">*&---------------------------------------------------------------------*</font>
+REPORT zaline_rev01.
+<font color ="#0000FF">*</font>
+TOP-OF-PAGE.
+
+  WRITE: text-002,
+         text-001,
+           sy-datum.
+  ULINE.
+
+TYPES: BEGIN OF est_alv,
+  seq TYPE zaline_conc-seq,
+  END OF est_alv.
+
+<font color ="#0000FF">*----------------------------------------------------------------------*</font>
+<font color ="#0000FF">*                       ---Tabela Interna---</font>
+<font color ="#0000FF">*----------------------------------------------------------------------*</font>
+DATA: it_conc TYPE TABLE OF zaline_conc,
+     it_alv TYPE TABLE OF zaline_conc,
+     it_field TYPE TABLE OF slis_fieldcat_alv.
+<font color ="#0000FF">*----------------------------------------------------------------------*</font>
+<font color ="#0000FF">*                         ---Work Area---</font>
+<font color ="#0000FF">*----------------------------------------------------------------------*</font>
+DATA: wa_conc TYPE zaline_conc,
+      wa_alv TYPE est_alv,
+      wa_field TYPE slis_fieldcat_alv,
+      wa_layout TYPE slis_layout_alv.
+<font color ="#0000FF">*----------------------------------------------------------------------*</font>
+<font color ="#0000FF">*                     ---Inicio do Programa---</font>
+<font color ="#0000FF">*----------------------------------------------------------------------*</font>
+START-OF-SELECTION.
+
+  SELECT DISTINCT seq "Seleciona campos distintos, sem repetição.
+    FROM zaline_conc
+    INTO CORRESPONDING FIELDS OF TABLE it_conc.
+<font color ="#0000FF">*    GROUP BY seq.</font>
+
+  LOOP AT it_conc INTO wa_conc.
+
+<font color ="#0000FF">*    WRITE: / wa_conc-seq.</font>
+wa_alv-seq = wa_conc-seq.
+APPEND wa_alv TO it_alv.
+  ENDLOOP.
+
+
+  wa_field-col_pos = 1.
+  wa_field-fieldname = 'SEQ'.
+  wa_field-tabname = 'est_alv'.
+<font color ="#0000FF">*  wa_field-outputlen = 10.</font>
+  wa_field-seltext_l = 'SEQUENCIAL'.
+ APPEND wa_field TO it_field.
+<font color ="#0000FF">*OUTPULEN NÃO FUNCIONA COM MENOS DE DOIS CAMPOS NO ALV?*</font>
+
+<font color ="#0000FF">*preencher layout</font>
+  wa_layout-colwidth_optimize = 'X'. "esse layout é pq o outputlen não esta registrando o tamanho 10
+  "otimiza os campos do alv, limita pelos campos preenchidos do alv
+  wa_layout-zebra = 'X'. "faz a alv zebrada
+
+
+<font color ="#0000FF">*carregar o alv</font>
+  CALL FUNCTION 'REUSE_ALV_GRID_DISPLAY'
+    EXPORTING
+      it_fieldcat = it_field
+      is_layout   = wa_layout
+    TABLES
+      t_outtab    = it_alv.
+
+<font color ="#0000FF">*Text elements</font>
+<font color ="#0000FF">*----------------------------------------------------------</font>
+<font color ="#0000FF">* 001 Data:</font>
+<font color ="#0000FF">* 002 Relatório 01</font>
+</pre>
+<hr>
+<font size="2" face = "Sans Serif">Extracted by Direct Download Enterprise version 1.3.1 - E.G.Mellodew. 1998-2005 UK. Sap Release 740
+</font>
+</body>
+</html>
